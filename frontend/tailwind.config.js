@@ -7,10 +7,25 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: '#6d40e4',
-        secondary: '#47b725',
-        tertiary: '#4c4d4b'
+        primary: '#f0f2f5',
+        secondary: '#ff813f',
+        tertiary: '#222222',
+        slate: {
+          10: '#f1f3f4',
+        },
+        green: {
+          50: '#30AF5B',
+          90: '#292C27',
+        },
+        gray: {
+          10: '#EEEEEE',
+          20: '#A2A2A2',
+          30: '#7B7B7B',
+          50: '#585858',
+          90: '#141414',
+        },
       },
+     
       screens: {
         xs: '400px',
         '3xl': '1680px',
