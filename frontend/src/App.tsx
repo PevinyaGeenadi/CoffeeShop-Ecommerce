@@ -6,6 +6,9 @@ import Cart from "./pages/Cart";
 import Login from "./pages/Login";
 import Product from "./pages/Product";
 import Footer from "./components/Footer";
+import bannerdrinks from "./assets/bannerdrinks.png";
+import bannerfoods from "./assets/bannerfoods.png";
+import bannerathomecoffee from "./assets/bannerathomecoffe.png";
 
 export default function App() {
   return (
@@ -14,9 +17,12 @@ export default function App() {
         <Header />
         <Routes>
           <Route path="/" element={<Home/>}/>
-          <Route path="/Drinks" element={<Category/>}/>
-          <Route path="/Foods" element={<Category/>}/>
-          <Route path="/At Home Coffee" element={<Category/>}/>
+          <Route path="/Drinks" element={<Category category="drinks" banner={bannerdrinks}/>}/>
+          <Route path="/Foods"  element={<Category category="Food" banner={bannerfoods}/>}/>
+          <Route path="/At Home Coffee" element={<Category category="Food" banner={bannerathomecoffee }/>}/>
+
+
+
           <Route path="/product" element={<Product/>}>
             <Route path=":productId" element={<Product/>}/>
           </Route>

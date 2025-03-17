@@ -1,23 +1,28 @@
 import { Link, NavLink } from "react-router-dom";
 import logo from "../assets/Coffee Shop Logo.png";
 import Navbar from "./Navbar";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { MdClose, MdMenu } from "react-icons/md";
 import { FaOpencart } from "react-icons/fa";
 import user from "../assets/user.svg";
+import { ShopContext } from "../Context/ShopContext";
 
 const Header = () => {
   const [menuOpened, setMenuOpened] = useState(false);
   const toggleMenu = () => {
     setMenuOpened(!menuOpened);
   };
+  
+  const shopContext = useContext(ShopContext);
+  const getTotalCartItems = shopContext?.getTotalCartItems || (() => 0);
 
+  
   return (
-    <header className="fixed top-0 left-0 m-auto max_padd_container w-full bg-white ring-1 ring-slate-900/5 z-10">
-      <div className="px-4 flexBetween py-3 max-xs:px-2">
+    <header className="fixed top-0 left-0  max_padd_container w-full bg-white ring-1 ring-slate-900/5 z-10">
+      <div className="px-4 flexBetween py-2 max-xs:px-2">
         <div>
           <Link to={""}>
-            <img src={logo} height={70} width={70} />
+            <img src={logo} height={50} width={50} />
           </Link>
         </div>
         <Navbar
@@ -46,7 +51,7 @@ const Header = () => {
             <NavLink to={"cart-page"} className={"flex"}>
               <FaOpencart className="p-1 h-8 w-8 ring-slate-900/30 ring-1 rounded-full" />
               <span className="relative flexCenter w-5 h-5 rounded-full bg-secondary text-white medium-14 -top-2">
-                0
+              {getTotalCartItems()}
               </span>
             </NavLink>
             {/* <NavLink
@@ -58,7 +63,7 @@ const Header = () => {
             </NavLink> */}
             <NavLink
               to={"login"}
-              className={"btn_secondary_rounded flexCenter gap-x-2 medium-16"}
+              className={"btn_dark_rounded flexCenter gap-x-2 medium-16"}
             >
               <img src={user} alt="userImg" height={19} width={19} />
               Login

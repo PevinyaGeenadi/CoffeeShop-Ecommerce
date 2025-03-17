@@ -4,10 +4,10 @@ import { FaStar } from "react-icons/fa";
 
 const Hero = () => {
   return (
-    <section className="relative bg-hero bg-center bg-no-repeat h-screen w-full">
+    <section className="relative bg-gray-200 bg-cover bg-no-repeat h-screen w-full">
       <div className="max_padd_container relative top-32 xs:top-52">
         <h1 className="h1 capitalize max-w-[37rem]">Your Perfect Cup of Coffee</h1>
-        <p className="text-gray-50 regular-16 mt-6 max-w-[35rem]">
+        <p className="text-gray-900 regular-16 mt-6 max-w-[35rem]">
         Welcome to Starbucks, where every sip is an experience. Discover our 
           rich and aromatic coffee, handcrafted beverages, and delicious treats. 
           Relax, recharge, and enjoy your favorite flavors today!

@@ -11,7 +11,7 @@ const Navbar: React.FC<NavbarProps> = ({ containerStyles }) => {
   return (
     <nav className={containerStyles}>
       <NavLink to= {"/"}               className={({isActive}) => isActive ? "active_link" : ""}><div className='flexCenter gap-x-1'><MdHome />Home</div></NavLink>
-      <NavLink to={"/Drinks"}          className={({isActive}) => isActive ? "active_link" : ""}><div className='flexCenter gap-x-1'><MdLocalCafe  />Drinkss</div></NavLink>
+      <NavLink to={"/Drinks"}          className={({isActive}) => isActive ? "active_link" : ""}><div className='flexCenter gap-x-1'><MdLocalCafe  />Drinks</div></NavLink>
       <NavLink to={"/Foods"}           className={({isActive}) => isActive ? "active_link" : ""}><div className='flexCenter gap-x-1'><MdFastfood />Foods</div></NavLink>
       <NavLink to={"/At Home Coffee"}  className={({isActive}) => isActive ? "active_link" : ""}><div className='flexCenter gap-x-1'><MdCoffee />At Home Coffee</div></NavLink>
     </nav>
