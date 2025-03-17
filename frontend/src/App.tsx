@@ -9,12 +9,16 @@ import Footer from "./components/Footer";
 import bannerdrinks from "./assets/bannerdrinks.png";
 import bannerfoods from "./assets/bannerfoods.png";
 import bannerathomecoffee from "./assets/bannerathomecoffe.png";
+import AdminLayout from "./admin/AdminLayout";
+import HideNavAndFooter from "./admin/HideNavAndFooter";
 
 export default function App() {
   return (
     <main className="bg-primary text-tertiary">
       <BrowserRouter>
-        <Header />
+      <HideNavAndFooter>
+          <Header />
+        </HideNavAndFooter>
         <Routes>
           <Route path="/" element={<Home/>}/>
           <Route path="/Drinks" element={<Category category="drinks" banner={bannerdrinks}/>}/>
@@ -28,8 +32,11 @@ export default function App() {
           </Route>
           <Route path="/cart-page" element={<Cart/>}/>
           <Route path="/login" element={<Login/>}/>
+          <Route path="/main" element={<AdminLayout />} />
         </Routes>
-        <Footer/>
+        <HideNavAndFooter>
+          <Footer />
+        </HideNavAndFooter>
       </BrowserRouter>
     </main>
   );
