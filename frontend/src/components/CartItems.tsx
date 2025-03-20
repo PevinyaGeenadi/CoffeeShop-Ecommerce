@@ -38,7 +38,7 @@ const CartItems = () => {
                                     <td>{cartItems[e.id]}</td>
                                     <td className="w-16 h-16 bg-white">${e.new_price * cartItems[e.id]}</td>
                                     <td>
-                                        <div className="bold-22 pl-14">
+                                        <div className="bold-22 flex justify-center">
                                             <TbTrash onClick={() => removeFromCart(e.id)}/>
                                         </div>
                                     </td> 
@@ -70,7 +70,7 @@ const CartItems = () => {
                     </div>
                     <button className="btn_dark_rounded w-44">Place Order</button>
                     <div className="flwx flex-col gap-10">
-                        <h4 className="bold-20 capitalize">Have a Starbucks Reward Code?</h4>
+                        <h4 className="bold-20 capitalize">Have a Roastoria Reward Code?</h4>
                         <div className="flexBetween pl-5 h-12 bg-primary rounded-full ring-1 ring-slate-900/10">
                             <input type="text" placeholder="Enter reward code" className="bg-transparent border-none outline-none"/>
                             <button className="btn_dark_rounded">Submit</button>

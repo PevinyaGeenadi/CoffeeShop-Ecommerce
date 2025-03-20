@@ -1,11 +1,15 @@
 import { Link, NavLink } from "react-router-dom";
-import logo from "../assets/Coffee Shop Logo.png";
+import logo from "../assets/logonew.png";
 import Navbar from "./Navbar";
 import { useContext, useState } from "react";
 import { MdClose, MdMenu } from "react-icons/md";
-import { FaOpencart } from "react-icons/fa";
+
 import user from "../assets/user.svg";
+
 import { ShopContext } from "../Context/ShopContext";
+import logout from "../assets/logout.svg";
+import { MdOutlineShoppingCart } from "react-icons/md";
+
 
 const Header = () => {
   const [menuOpened, setMenuOpened] = useState(false);
@@ -18,11 +22,12 @@ const Header = () => {
 
   
   return (
-    <header className="fixed top-0 left-0  max_padd_container w-full bg-white ring-1 ring-slate-900/5 z-10">
+    <header className="fixed top-0 left-0  max_padd_container w-full bg-[#f5f5f5] ring-1 ring-slate-900/5 z-10">
       <div className="px-4 flexBetween py-2 max-xs:px-2">
         <div>
           <Link to={""}>
-            <img src={logo} height={50} width={50} />
+            <img src={logo} height={60} width={60} />
+            
           </Link>
         </div>
         <Navbar
@@ -47,27 +52,29 @@ const Header = () => {
               onClick={toggleMenu}
             />
           )}
-          <div className="flexBetween sm:gap-x-6">
+          <div className="flexBetween sm:gap-x-7">
             <NavLink to={"cart-page"} className={"flex"}>
-              <FaOpencart className="p-1 h-8 w-8 ring-slate-900/30 ring-1 rounded-full" />
-              <span className="relative flexCenter w-5 h-5 rounded-full bg-secondary text-white medium-14 -top-2">
+              <MdOutlineShoppingCart className="p-1 h-8 w-8 ring-slate-900/30 ring-1 rounded-full" />
+              <span className="relative flexCenter w-5 h-5 rounded-full bg-green-900 text-white medium-14 -top-2">
               {getTotalCartItems()}
               </span>
             </NavLink>
-            {/* <NavLink
+            {localStorage.getItem('auth-token') ? 
+            <NavLink
               to={"logout"}
+              onClick={() => {localStorage.removeItem('auth-token'); window.location.replace('/')}}
               className={"btn_secondary_rounded flexCenter gap-x-2 medium-16"}
             >
               <img src={logout} alt="logoutImg" height={19} width={19} />
-              Logout
-            </NavLink> */}
+              LOGOUT
+            </NavLink> : 
             <NavLink
               to={"login"}
-              className={"btn_dark_rounded flexCenter gap-x-2 medium-16"}
+              className={"btn_secondary_rounded flexCenter gap-x-2 medium-16"}
             >
               <img src={user} alt="userImg" height={19} width={19} />
-              Login
-            </NavLink>
+              LOGIN
+            </NavLink>}
           </div>
         </div>
       </div>

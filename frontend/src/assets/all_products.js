@@ -270,7 +270,7 @@ let all_products = [
     },
     {
       id: 30,
-      name: "Starbucks Reserve® Espresso",
+      name: "Roastoria Reserve® Espresso",
       category: "coffee",
       image: p30_img,
       new_price: 6.0,

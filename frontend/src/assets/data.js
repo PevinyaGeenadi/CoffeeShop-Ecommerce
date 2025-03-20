@@ -137,8 +137,8 @@ export const POPULAR = [
   export const FOOTER_CONTACT_INFO = {
     title: "Contact Us",
     links: [
-      { label: "Customer Service", value: "1-800-STARBUCKS" },
-      { label: "Email Address", value: "support@starbucks.com" },
+      { label: "Customer Service", value: "1-800-Roastoria " },
+      { label: "Email Address", value: "support@Roastoria.com" },
     ],
   };
   

@@ -1,5 +1,6 @@
 
 import NavbarAdmin from './NavbarAdmin'
+
 import Admin from './Admin'
 
 const AdminLayout = () => {

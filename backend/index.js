@@ -6,126 +6,460 @@ const jwt = require("jsonwebtoken");
 const multer = require("multer");
 const path = require("path");
 const cors = require("cors");
-const { log } = require("console");
+const fs = require('fs');
+
+const corsConfig = {
+  origin: "*",
+  credentials: true,
+  methods: ["GET", "PUT", "PATCH", "POST", "DELETE"],
+};
 
 app.use(express.json());
-app.use(cors());
+app.use(cors(corsConfig));
 
-//Database connection
+// Create upload directory if it doesn't exist
+const uploadDir = './upload/images';
+if (!fs.existsSync(uploadDir)){
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Database connection
 mongoose.connect(
-  "mongodb+srv://coffeeadmin:Coffee@123@cluster0.vdo62.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0 "
-
-
-);
+  "mongodb+srv://coffeeadmin:Coffee%40123@cluster0.vdo62.mongodb.net/CoffeeShopDB?retryWrites=true&w=majority&appName=Cluster0"
+)
+.then(() => {
+  console.log("MongoDB successfully connected!");
+})
+.catch((err) => {
+  console.error("MongoDB connection error:", err);
+});
 
 app.get("/", (req, res) => {
-    res.send("Server is running");
-})
+  res.send("Server is running");
+});
 
-//image storage
+// Image storage configuration
 const storage = multer.diskStorage({
-    destination: './upload/images',
-    filename: (req, file, cb) => {
-        return cb(null, `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`);
-    }
-})
+  destination: (req, file, cb) => {
+    cb(null, uploadDir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${file.fieldname}_${Date.now()}${path.extname(file.originalname)}`);
+  },
+});
 
-const upload = multer({storage: storage});
+const upload = multer({ storage: storage });
 
-//upload image endpoint
-app.use('/images', express.static('upload/images'))
-app.post("/upload", upload.single('product'), (req, res) => {
-    res.json({
-        success: 1,
-        image_url: `http://localhost:${port}/images/${req.file.filename}`
-    })
-})
+// Serve static files from the upload directory
+app.use("/images", express.static(uploadDir));
 
-// Schema for Starbucks coffee products
-const Product = mongoose.model("Product", {
-    id: {
-        type: Number,
-        required: true,
-    },
-    name: {
-        type: String,
-        required: true,
-    },
-    image: {
-        type: String,
-        required: true,
-    },
-    category: {
-        type: String,
-        required: true, // Example: Espresso, Latte, Frappuccino
-    },
-    new_price: {
-        type: Number,
-        required: true,
-    },
-    old_price: {
-        type: Number,
-        required: true,
-    },
-    date: {
-        type: Date,
-        default: Date.now,
-    },
-    available: {
-        type: Boolean,
-        default: true
-    },
-})
-
-// Endpoint to add a new coffee product
-app.post('/addProduct', async(req, res) => {
-  let products = await Product.find({});
-    let id;
-    if(products.length > 0) {
-        let last_product_array = products.slice(-1);
-        let last_product = last_product_array[0];
-        id = last_product.id +1;
-    }else {
-        id = 1;
+// Upload image endpoint
+app.post("/upload", upload.single("product"), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({
+      success: 0,
+      message: "No file uploaded"
+    });
   }
+  
+  res.json({
+    success: 1,
+    image_url: `http://localhost:${port}/images/${req.file.filename}`,
+  });
+});
+
+// Schema for creating products
+const Product = mongoose.model("Product", {
+  id: {
+    type: Number,
+    required: true,
+  },
+  name: {
+    type: String,
+    required: true,
+  },
+  image: {
+    type: String,
+    required: true,
+  },
+  category: {
+    type: String,
+    required: true,
+  },
+  new_price: {
+    type: Number,
+    required: true,
+  },
+  old_price: {
+    type: Number,
+    required: true,
+  },
+  date: {
+    type: Date,
+    default: Date.now,
+  },
+  available: {
+    type: Boolean,
+    default: true,
+  },
+});
+
+// Product add
+app.post("/addProduct", async (req, res) => {
+  try {
+    let products = await Product.find({});
+    let id;
+    if (products.length > 0) {
+      let last_product_array = products.slice(-1);
+      let last_product = last_product_array[0];
+      id = last_product.id + 1;
+    } else {
+      id = 1;
+    }
+
     const product = new Product({
-        id: id,
+      id: id,
+      name: req.body.name,
+      image: req.body.image,
+      category: req.body.category,
+      new_price: req.body.new_price,
+      old_price: req.body.old_price,
+    });
+    
+    console.log("Adding product:", product);
+    await product.save();
+    console.log("Saved product");
+    
+    res.json({
+      success: true,
+      name: req.body.name,
+    });
+  } catch (error) {
+    console.error("Error adding product:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error adding product",
+      error: error.message
+    });
+  }
+});
+
+// Edit product
+app.put("/editProduct/:id", async (req, res) => {
+  const productId = req.params.id;
+  
+  try {
+    const updatedProduct = await Product.findOneAndUpdate(
+      { id: productId },
+      {
         name: req.body.name,
         image: req.body.image,
         category: req.body.category,
         new_price: req.body.new_price,
         old_price: req.body.old_price,
-      });
-      console.log(product);
-      await product.save();
-      console.log("Saved product");
-      res.json({
-          success: true,
-          name: req.body.name,
-        })
-      })
-      
-      // Delete products
-      app.delete('/deleteProduct', async(req, res) => {
-          await Product.findOneAndDelete({id:req.body.id});
-          res.json({
-              success: true,
-              name: req.body.name,
-          })
-      })
-      
-      // get all products
-      app.get('/allProducts', async(req, res) => {
-          let products = await Product.find({});
-          console.log("All products are fetched");
-          res.send(products);
-      })
+      },
+      { new: true } 
+    );
 
+    if (!updatedProduct) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    console.log("Updated product:", updatedProduct);
+    res.json({
+      success: true,
+      updatedProduct,
+    });
+  } catch (error) {
+    console.error("Error updating product:", error.message);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+// Delete products
+app.delete("/deleteProduct", async (req, res) => {
+  await Product.findOneAndDelete({ id: req.body.id });
+  res.json({
+    success: true,
+    name: req.body.name,
+  });
+});
+
+// Get product according to product id
+app.get('/getProduct/:id', async (req, res) => {
+  try {
+    const productId = req.params.id;
+
+    const product = await Product.findOne({ id: productId });
+
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    res.json(product);
+  } catch (error) {
+    console.error('Error fetching product details:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// Get all products details
+app.get("/allProducts", async (req, res) => {
+  let products = await Product.find({});
+  console.log("All products fetched");
+  res.send(products);
+});
+
+// Total products count
+app.get("/totalProducts", async (req, res) => {
+  try {
+    let totalProducts = await Product.countDocuments({});
+    
+    console.log("Total products counted:", totalProducts);
+    
+    res.send({ totalProducts: totalProducts });
+  } catch (error) {
+    console.error("Error counting products:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// Schema user model
+const User = mongoose.model("User", {
+  name: {
+    type: String,
+  },
+  email: {
+    type: String,
+    unique: true,
+  },
+  password: {
+    type: String,
+  },
+  cartData: {
+    type: Object,
+  },
+  date: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+// Total users count
+app.get("/totalUsers", async (req, res) => {
+  try {
+    let totalUsers = await User.countDocuments({});
+    
+    console.log("Total users counted:", totalUsers);
+    
+    res.send({ totalUsers: totalUsers });
+  } catch (error) {
+    console.error("Error counting users:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// Get all Users
+app.get("/allusers", async (req, res) => {
+  let users = await User.find({});
+  console.log("All Users are fetched");
+  res.send(users);
+});
+
+// Delete users
+app.delete('/deleteUser', async (req, res) => {
+  const { name } = req.body;
+
+  console.log('Request to delete user:', name);
+
+  if (!name) {
+    return res.status(400).json({ success: false, message: 'Name is required' });
+  }
+
+  try {
+    const user = await User.findOneAndDelete({ name });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    res.json({
+      success: true,
+      name: user.name,
+    });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ success: false, message: 'An error occurred while deleting the user' });
+  }
+});
+
+// Creating endpoint for registering the user
+app.post("/signup", async (req, res) => {
+  let check = await User.findOne({ email: req.body.email });
+  if (check) {
+    return res.status(400).json({
+      success: false,
+      errors: "Existing user found with same email address",
+    });
+  }
+  let cart = {};
+  for (let i = 0; i < 300; i++) {
+    cart[i] = 0;
+  }
+  const user = new User({
+    name: req.body.username,
+    email: req.body.email,
+    password: req.body.password,
+    cartData: cart,
+  });
+  await user.save();
+
+  const data = {
+    user: {
+      id: user.id,
+    },
+  };
+  const token = jwt.sign(data, "secret_ecommerce_token");
+  res.json({
+    success: true,
+    token,
+  });
+});
+
+// Creating endpoint for logging in the user
+app.post("/login", async (req, res) => {
+  let user = await User.findOne({ email: req.body.email });
+  if (user) {
+    const passwordMatch = req.body.password === user.password;
+    if (passwordMatch) {
+      const data = {
+        user: {
+          id: user.id,
+        },
+      };
+      const token = jwt.sign(data, "secret_ecommerce_token");
+      res.json({
+        success: true,
+        token,
+      });
+    } else {
+      res.json({
+        success: false,
+        errors: "Incorrect password",
+      });
+    }
+  } else {
+    res.json({
+      success: false,
+      errors: "Incorrect email address",
+    });
+  }
+});
+
+// Latest products
+app.get("/newCollection", async (req, res) => {
+  let products = await Product.find({});
+  let newCollection = products.slice(1).slice(-8);
+  console.log("New collection fetched");
+  res.send(newCollection);
+});
+
+
+// Popular products - Update this to use coffee categories 
+app.get("/popularProducts", async (req, res) => {
+  try {
+    // Use coffee-related categories 
+    let products = await Product.find({ 
+      category: { $in: ["foods", "drinks", "homecoffee"] } 
+    });
+    
+    let popularProducts = products.slice(0, 4);
+    console.log("Popular products fetched:", popularProducts.length);
+    res.send(popularProducts);
+  } catch (error) {
+    console.error("Error fetching popular products:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// Add a new endpoint for coffee products by category
+app.get("/products/:category", async (req, res) => {
+  try {
+    const category = req.params.category;
+    console.log("Fetching products for category:", category);
+    
+    // Case-insensitive search for the category
+    let products = await Product.find({ 
+      category: { $regex: new RegExp(category, "i") } 
+    });
+    
+    console.log(`Found ${products.length} products in category '${category}'`);
+    res.send(products);
+  } catch (error) {
+    console.error("Error fetching category products:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.get("/categories", async (req, res) => {
+  try {
+    const categories = await Product.distinct("category");
+    console.log("Available categories:", categories);
+    res.json(categories);
+  } catch (error) {
+    console.error("Error fetching categories:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
+
+// Authentication middleware
+const fetchUser = async (req, res, next) => {
+  const token = req.header("auth-token");
+  if (!token) {
+    return res.status(401).send({ errors: "Please authenticate using a valid login" });
+  }
+
+  try {
+    const data = jwt.verify(token, "secret_ecommerce_token");
+    req.user = data.user;
+    next();
+  } catch (error) {
+    return res.status(401).send({ errors: "Please authenticate using a valid token" });
+  }
+};
+
+// Add products to cart data
+app.post("/addtocart", fetchUser, async (req, res) => {
+  console.log("Added", req.body.itemId);
+  let userData = await User.findOne({ _id: req.user.id });
+  userData.cartData[req.body.itemId] += 1;
+  await User.findOneAndUpdate({ _id: req.user.id }, { cartData: userData.cartData });
+  res.send('Added');
+});
+
+// Remove from cart data
+app.post("/removefromcart", fetchUser, async (req, res) => {
+  console.log("Removed", req.body.itemId);
+  let userData = await User.findOne({ _id: req.user.id });
+  if (userData.cartData[req.body.itemId] > 0)
+    userData.cartData[req.body.itemId] -= 1;
+  await User.findOneAndUpdate({ _id: req.user.id }, { cartData: userData.cartData });
+  res.send('Removed');
+});
+
+// Get cart data
+app.post('/getcart', fetchUser, async(req, res) => {
+  console.log('Get cart data');
+  let userData = await User.findOne({_id:req.user.id});
+  res.json(userData.cartData);
+});
 
 app.listen(port, (error) => {
-    if(!error) {
-        console.log("Server is running on port" + port);
-    }else {
-        console.log("Error: " + error);
-    }
-})
+  if (!error) {
+    console.log("Server is running on port " + port);
+  } else {
+    console.log("Error: " + error);
+  }
+});

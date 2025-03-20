@@ -12,7 +12,7 @@ const ProductDescription = () => {
             Brew Guide
           </button>
         </div>
-        <div className="flex flex-col pb-16">
+        <div className="flex flex-col pb-0">
           <p className="text-sm">
             Indulge in the rich and bold flavors of our handcrafted coffee, made
             from the finest Arabica beans. Every sip delivers a smooth and
@@ -21,7 +21,7 @@ const ProductDescription = () => {
             flavor, body, and aroma.
           </p>
           <p className="text-sm">
-            At Starbucks, we are passionate about quality. From sourcing
+            At Roastoria, we are passionate about quality. From sourcing
             sustainable coffee beans to brewing the perfect cup, we take pride in
             every detail. Enjoy your coffee just the way you like it—hot, iced, or
             blended into a refreshing Frappuccino.
